@@ -5,13 +5,13 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Initialize the IDPAY gateway.
+ * Initialize the RAYPAY gateway.
  *
  * When the internal hook 'plugins_loaded' is fired, this function would be
  * executed and after that, a Woocommerce hook (woocommerce_payment_gateways)
  * which defines a new gateway, would be triggered.
  *
- * Therefore whenever all plugins are loaded, the IDPAY gateway would be
+ * Therefore whenever all plugins are loaded, the RAYPAY gateway would be
  * initialized.
  *
  * Also another Woocommerce hooks would be fired in this process:
@@ -134,8 +134,8 @@ function gateway_raypay_init()
                 $this->user_id = $this->get_option('user_id');
                 $this->acceptor_code = $this->get_option('acceptor_code');
 
-               $this->payment_endpoint = 'http://185.165.118.211:14000/raypay/api/v1/Payment/getPaymentTokenWithUserID';
-                $this->verify_endpoint = 'http://185.165.118.211:14000/raypay/api/v1/Payment/checkInvoice';
+               $this->payment_endpoint = 'https://api.raypay.ir/raypay/api/v1/Payment/getPaymentTokenWithUserID';
+                $this->verify_endpoint = 'https://api.raypay.ir/raypay/api/v1/Payment/checkInvoice';
 
                 $this->success_message = $this->get_option('success_message');
                 $this->failed_message = $this->get_option('failed_message');
