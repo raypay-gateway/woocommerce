@@ -47,10 +47,3 @@ function raypay_get_amount( $amount, $currency ) {
 			return 0;
 	}
 }
-function raypay_send_data_shaparak($access_token , $terminal_id){
-    echo '<form name="frmRayPayPayment" method="post" action=" https://mabna.shaparak.ir:8080/Pay ">';
-    echo '<input type="hidden" name="TerminalID" value="' . $terminal_id . '" />';
-    echo '<input type="hidden" name="token" value="' . $access_token . '" />';
-    echo '<input class="submit" type="submit" value="پرداخت" /></form>';
-    echo '<script>document.frmRayPayPayment.submit();</script>';
-}

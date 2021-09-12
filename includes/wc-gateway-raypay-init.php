@@ -5,13 +5,13 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Initialize the RAYPAY gateway.
+ * Initialize the IDPAY gateway.
  *
  * When the internal hook 'plugins_loaded' is fired, this function would be
  * executed and after that, a Woocommerce hook (woocommerce_payment_gateways)
  * which defines a new gateway, would be triggered.
  *
- * Therefore whenever all plugins are loaded, the RAYPAY gateway would be
+ * Therefore whenever all plugins are loaded, the IDPAY gateway would be
  * initialized.
  *
  * Also another Woocommerce hooks would be fired in this process:
@@ -75,11 +75,20 @@ function gateway_raypay_init()
             protected $user_id;
 
             /**
-             * The Acceptor Code
+             * The Marketing ID
              *
              * @var string
              */
-            protected $acceptor_code;
+            protected $marketing_id;
+
+            /**
+             * The sandbox mode.
+             *
+             * Indicates weather the gateway is in the test or the live mode.
+             *
+             * @var string
+             */
+            protected $sandbox;
 
             /**
              * The payment success message.
@@ -132,10 +141,13 @@ function gateway_raypay_init()
                 $this->description = $this->get_option('description');
 
                 $this->user_id = $this->get_option('user_id');
-                $this->acceptor_code = $this->get_option('acceptor_code');
+                $this->marketing_id = $this->get_option('marketing_id');
+                $this->sandbox = $this->get_option('sandbox');
 
-               $this->payment_endpoint = 'https://api.raypay.ir/raypay/api/v1/Payment/getPaymentTokenWithUserID';
-                $this->verify_endpoint = 'https://api.raypay.ir/raypay/api/v1/Payment/checkInvoice';
+               //$this->payment_endpoint = 'http://185.165.118.211:14000/raypay/api/v1/Payment/getPaymentTokenWithUserID';
+                $this->payment_endpoint = 'https://api.raypay.ir/raypay/api/v1/Payment/Pay';
+                //$this->verify_endpoint = 'http://185.165.118.211:14000/raypay/api/v1/Payment/checkInvoice';
+                $this->verify_endpoint = 'https://api.raypay.ir/raypay/api/v1/Payment/Verify';
 
                 $this->success_message = $this->get_option('success_message');
                 $this->failed_message = $this->get_option('failed_message');
@@ -206,11 +218,18 @@ function gateway_raypay_init()
                         'description' => __('You can receive your User ID from RayPay panel https://panel.raypay.ir', 'woo-raypay-gateway'),
                         'default' => '20064',
                     ),
-                    'acceptor_code' => array(
-                        'title' => __('Acceptor Code', 'woo-raypay-gateway'),
+                    'marketing_id' => array(
+                        'title' => __('Marketing ID', 'woo-raypay-gateway'),
                         'type' => 'text',
-                        'description' => __('You can receive your Acceptor Code from RayPay panel https://panel.raypay.ir', 'woo-raypay-gateway'),
-                        'default' => '220000000003751',
+                        'description' => __('You can receive your Marketing ID from RayPay panel https://panel.raypay.ir', 'woo-raypay-gateway'),
+                        'default' => '10070',
+                    ),
+                    'sandbox' => array(
+                        'title' => __('Sandbox', 'woo-raypay-gateway'),
+                        'label' => __('Enable sandbox mode', 'woo-raypay-gateway'),
+                        'description' => __('If you check this option, the gateway works in test (sandbox) mode.', 'woo-raypay-gateway'),
+                        'type' => 'checkbox',
+                        'default' => 'no',
                     ),
                     'message_confing' => array(
                         'title' => __('Payment message configuration', 'woo-raypay-gateway'),
@@ -264,7 +283,8 @@ function gateway_raypay_init()
                 $currency = apply_filters('WOO_RayPay_Gateway_Currency', $currency, $order_id);
 
                 $user_id = $this->user_id;
-                $acceptor_code = $this->acceptor_code;
+                $marketing_id = $this->marketing_id;
+                $sandbox = !($this->sandbox == 'no');
 
 
                 /** @var \WC_Customer $customer */
@@ -281,7 +301,7 @@ function gateway_raypay_init()
 //                $amount = raypay_get_amount(intval($order->get_total()), $currency);
                 $amount = raypay_get_amount($order->get_total(), $currency);
                 $callback = add_query_arg('wc_order', $order_id, WC()->api_request_url('woo_raypay_gateway'));
-                $callback .= "&";
+                //$callback .= "&";
 
                 if (empty($amount)) {
                     $notice = __('Selected currency is not supported', 'woo-raypay-gateway'); //todo
@@ -299,10 +319,11 @@ function gateway_raypay_init()
                     'userID' => $user_id,
                     'redirectUrl' => $callback,
                     'factorNumber' => strval($order_id),
-                    'acceptorCode' => $acceptor_code,
+                    'marketingID' => $marketing_id,
                     'mobile' => $phone,
                     'email' => $mail,
                     'fullName' => $name,
+                    'enableSandBox' => $sandbox,
                 );
 
                 $headers = array(
@@ -353,13 +374,14 @@ function gateway_raypay_init()
 
                 }
 
-                $access_token = $result->Data->Accesstoken;
-                $terminal_id = $result->Data->TerminalID;
+                //$access_token = $result->Data->Accesstoken;
+                //$terminal_id = $result->Data->TerminalID;
+                $token = $result->Data;
 
                 // Save AccessToken of this transaction
-                update_post_meta($order_id, 'raypay_access_token', $access_token);
+                update_post_meta($order_id, 'raypay_access_token', $token);
 
-                update_post_meta($order_id, 'raypay_terminal_id', $terminal_id);
+                //update_post_meta($order_id, 'raypay_terminal_id', $terminal_id);
 
                 update_post_meta($order_id, 'raypay_invoice_id', $invoice_id);
 
@@ -368,7 +390,9 @@ function gateway_raypay_init()
 
                // $note = sprintf(__('transaction id: %s', 'woo-raypay-gateway'), $access_token);
                // $order->add_order_note($note);
-                raypay_send_data_shaparak($access_token , $terminal_id);
+                $link='https://my.raypay.ir/ipg?token=' . $token;
+                wp_redirect($link);
+                //raypay_send_data_shaparak($access_token , $terminal_id);
                 return FALSE;
 
             }
@@ -378,6 +402,10 @@ function gateway_raypay_init()
              */
             public function raypay_checkout_return_handler()
             {
+//                if ( ! WC()->session->has_session() )
+//                {
+//                    WC()->session->set_customer_session_cookie(true);
+//                }
                 global $woocommerce;
 
                 // Check order_id in query string
@@ -389,7 +417,6 @@ function gateway_raypay_init()
 
                     return FALSE;
                 }
-
 
                 $order = wc_get_order($order_id);
 
@@ -419,26 +446,17 @@ function gateway_raypay_init()
 
                 update_post_meta($order_id, 'raypay_transaction_order_id', $order_id);
 
-
-
-                $invoice_id = get_post_meta($order_id, 'raypay_invoice_id', TRUE);
-                $verify_url = add_query_arg('pInvoiceID', $invoice_id, $this->verify_endpoint);
-
-
-                $data = array(
-                    'order_id' => $order_id,
-                );
+                $verify_url = $this->verify_endpoint;
 
                 $headers = array(
                     'Content-Type' => 'application/json',
                 );
 
                 $args = array(
-                    'body' => json_encode($data),
+                    'body' => json_encode($_POST),
                     'headers' => $headers,
                     'timeout' => 15,
                 );
-
 
                 $response = $this->call_gateway_endpoint($verify_url, $args);
                 if (is_wp_error($response)) {
@@ -469,12 +487,12 @@ function gateway_raypay_init()
                     wp_redirect(wc_get_checkout_url());
                     return FALSE;
                 } else {
-                    $state = $result->Data->State;
+                    $state = $result->Data->Status;
 
-                    //$verify_track_id = empty($result->track_id) ? NULL : $result->track_id;
-                   // $verify_id = empty($result->id) ? NULL : $result->id;
                     $verify_order_id = $result->Data->FactorNumber;
+
                     $verify_amount = $result->Data->Amount;
+                    $verify_track_id = $result->Data->WritheaderID;
 
                     //check type of product for definition order status
                     $has_downloadable = $order->has_downloadable_item();
@@ -482,21 +500,23 @@ function gateway_raypay_init()
                     $status = ($state == 1) ? $status_helper : 'failed';
 
                     //completed
-                    $note = sprintf(__('Transaction payment status: %s', 'woo-raypay-gateway'), $state);
+                    $note = sprintf(__('Transaction payment status: %s', 'woo-raypay-gateway'), $status);
                     $note .= '<br/>';
                     $order->add_order_note($note);
 
                     // Updates order's meta data after verifying the payment.
-                    update_post_meta($order_id, 'raypay_transaction_status', $state);
+                    update_post_meta($order_id, 'raypay_transaction_status', $status);
                     update_post_meta($order_id, 'raypay_transaction_order_id', $verify_order_id);
                     update_post_meta($order_id, 'raypay_transaction_amount', $verify_amount);
 
 
-                    if ($state == 0) {
+                    if ($state !== 1) {
                         $order->update_status('failed');
                         $this->raypay_display_failed_message($order_id);
 
-                        wp_redirect(wc_get_checkout_url());
+                        //wp_redirect(wc_get_checkout_url());
+                        wp_redirect($woocommerce->cart->get_cart_url());
+
 
                         return FALSE;
                     } elseif ($status == 'processing' or $status == 'completed') {
@@ -504,6 +524,7 @@ function gateway_raypay_init()
                         //$order->payment_complete($order_id);
                         $order->update_status($status);
                         $woocommerce->cart->empty_cart();
+                        update_post_meta($order_id, 'raypay_transaction_track_id', $verify_track_id);
                         $this->raypay_display_success_message($order_id);
                         wp_redirect(add_query_arg('wc_status', 'success', $this->get_return_url($order)));
                         return FALSE;
@@ -518,7 +539,7 @@ function gateway_raypay_init()
              */
             private function raypay_display_invalid_order_message($msgNumber = null)
             {
-                $msg = $this->otherStatusMessages($msgNumber);
+                $msg = 'خطای نامشخص';
                 $notice = '';
                 $notice .= __('There is no order number referenced.', 'woo-raypay-gateway');
                 $notice .= '<br/>';
@@ -579,8 +600,10 @@ function gateway_raypay_init()
              */
             private function raypay_display_failed_message($order_id)
             {
+                //$notice = wpautop(wptexturize($this->failed_message));
                 $notice = $this->failed_message;
                 wc_add_notice($notice, 'error');
+
             }
         }
 

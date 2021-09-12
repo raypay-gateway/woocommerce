@@ -1,4 +1,4 @@
-# Copyright (C) 2019 RayPay
+# Copyright (C) 2021 RayPay
 # This file is distributed under the same license as the RayPay payment gateway for Woocommerce plugin.
 msgid ""
 msgstr ""
@@ -6,7 +6,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woo-raypay-"
 "gateway\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2021-05-15 12:26+0430\n"
+"PO-Revision-Date: 2021-09-12 11:41+0430\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -61,6 +61,10 @@ msgstr "پرداخت از طریق درگاه رای پی."
 msgid "Enable/Disable"
 msgstr "فعال / غیر فعال"
 
+#: includes/wc-gateway-raypay-init.php:185
+msgid "Enable RayPay gateway"
+msgstr "فعال سازی درگاه رای پی"
+
 #: includes/wc-gateway-raypay-init.php:192
 msgid "Title"
 msgstr "عنوان"
@@ -90,7 +94,7 @@ msgstr ""
 
 #: includes/wc-gateway-raypay-init.php:204
 msgid "Webservice Configuration"
-msgstr "پیکربندی وب سرویس"
+msgstr "پیکربندی کسب و کار"
 
 #: includes/wc-gateway-raypay-init.php:241
 msgid "User ID"
@@ -103,15 +107,27 @@ msgstr ""
 "raypay.ir"
 
 #: includes/wc-gateway-raypay-init.php:247
-msgid "Acceptor Code"
-msgstr "کد پذیرنده"
+msgid "Marketing ID"
+msgstr "شناسه کسب و کار"
 
 #: includes/wc-gateway-raypay-init.php:249
 msgid ""
-"You can receive your Acceptor Code from RayPay panel https://panel.raypay.ir"
+"You can receive your Marketing ID from RayPay panel https://panel.raypay.ir"
 msgstr ""
-"شما میتوانید کد پذیرنده خود را از پنل رای پی دریافت کنید. https://panel."
+"شما میتوانید شناسه کسب و کار خود را از پنل رای پی دریافت کنید. https://panel."
 "raypay.ir"
+
+#: includes/wc-gateway-raypay-init.php:215
+msgid "Sandbox"
+msgstr "سندباکس"
+
+#: includes/wc-gateway-raypay-init.php:216
+msgid "Enable sandbox mode"
+msgstr "فعال سازی SandBox"
+
+#: includes/wc-gateway-raypay-init.php:217
+msgid "If you check this option, the gateway works in test (sandbox) mode."
+msgstr "اگر این گزینه را فعال نماپید، پرداخت در محیط تست رای پی انجام می گیرد."
 
 #: includes/wc-gateway-raypay-init.php:222
 msgid "Payment message configuration"
@@ -207,3 +223,10 @@ msgstr "شماره سفارش در دسترس نیست."
 #: includes/wc-gateway-raypay-init.php:550
 msgid "Please try again or contact the site administrator in case of a problem."
 msgstr "لطفا دوباره تلاش کنید یا مساله را با ادمین سایت مطرح کنید."
+
+#~ msgid ""
+#~ "You can receive your Acceptor Code from RayPay panel https://panel.raypay."
+#~ "ir"
+#~ msgstr ""
+#~ "شما میتوانید شناسه کسب و کار خود را از پنل رای پی دریافت کنید. https://"
+#~ "panel.raypay.ir"

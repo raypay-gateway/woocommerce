@@ -45,6 +45,10 @@ msgstr ""
 msgid "Enable/Disable"
 msgstr ""
 
+#: includes/wc-gateway-raypay-init.php:185
+msgid "Enable RayPay gateway"
+msgstr ""
+
 #: includes/wc-gateway-raypay-init.php:192
 msgid "Title"
 msgstr ""
@@ -79,11 +83,24 @@ msgid "You can receive your User ID from RayPay panel https://panel.raypay.ir"
 msgstr ""
 
 #: includes/wc-gateway-raypay-init.php:247
-msgid "Acceptor Code"
+msgid "Marketing ID"
 msgstr ""
 
 #: includes/wc-gateway-raypay-init.php:249
-msgid "You can receive your Acceptor Code from RayPay panel https://panel.raypay.ir"
+msgid "You can receive your Marketing ID from RayPay panel https://panel.raypay.ir"
+msgstr ""
+
+
+#: includes/wc-gateway-raypay-init.php:215
+msgid "Sandbox"
+msgstr ""
+
+#: includes/wc-gateway-raypay-init.php:216
+msgid "Enable sandbox mode"
+msgstr ""
+
+#: includes/wc-gateway-raypay-init.php:217
+msgid "If you check this option, the gateway works in test (sandbox) mode."
 msgstr ""
 
 
