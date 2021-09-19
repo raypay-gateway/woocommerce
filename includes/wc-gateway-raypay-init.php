@@ -514,8 +514,7 @@ function gateway_raypay_init()
                         $order->update_status('failed');
                         $this->raypay_display_failed_message($order_id);
 
-                        //wp_redirect(wc_get_checkout_url());
-                        wp_redirect($woocommerce->cart->get_cart_url());
+                        wp_redirect(wc_get_checkout_url());
 
 
                         return FALSE;
